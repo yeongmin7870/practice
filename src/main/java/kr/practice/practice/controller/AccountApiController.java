@@ -3,7 +3,6 @@ package kr.practice.practice.controller;
 import kr.practice.practice.Account.Account;
 import kr.practice.practice.repository.AccountRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,11 +19,24 @@ public class AccountApiController {
 
     //생성
     @PostMapping("/account")
-    public ResponseEntity<?> saveAccount(@RequestBody Account account){
-        Account saveAccount = accountRepository.save(account);
-        System.out.println("결과: "+account);
-        return ResponseEntity.ok(saveAccount);
+    public Account saveAccount(@RequestBody Account account){
+        return accountRepository.save(account);
     }
+
+
+    @PutMapping("/{AccountNUm}")
+    public void updateAccount(@PathVariable Long AccountNUm, @RequestBody Account newAccount){
+        accountRepository.findById(AccountNUm)
+                .map(account -> {
+                    account.setName(newAccount.getName());
+                    return accountRepository.save(account);
+                })
+                .orElseGet(() -> {
+                    newAccount.setAccountNUm(AccountNUm);
+                    return accountRepository.save(newAccount);
+                });
+    }
+
 
     //목록 조회
     @GetMapping("/account")
